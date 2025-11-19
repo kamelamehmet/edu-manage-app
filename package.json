@@ -1,0 +1,13 @@
+{
+  "name": "edu-manage-app",
+  "private": true,
+  "version": "0.0.0",
+  "scripts": {
+    "start:backend": "cd backend && ./pocketbase serve",
+    "start:frontend": "cd frontend && npm run dev",
+    "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

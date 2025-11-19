@@ -1,0 +1,3 @@
+// courses feature entry
+
+export {};
