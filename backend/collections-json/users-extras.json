@@ -1,0 +1,13 @@
+{
+  "note": "This file describes fields to add to the system 'users' collection. Do NOT import automatically unless you know what you're doing.",
+  "fields": [
+    { "name": "fullName", "type": "text", "required": true, "unique": false, "options": {} },
+    { "name": "avatar", "type": "file", "required": false, "unique": false, "options": {} },
+    { "name": "role", "type": "select", "required": true, "unique": false, "options": { "values": ["student","teacher","admin"] } }
+  ],
+  "recommended_manual_steps": [
+    "Open PocketBase Admin UI -> Collections -> users",
+    "Use 'Add Field' to add the fields above",
+    "Set validation rules for fullName and role as needed"
+  ]
+}

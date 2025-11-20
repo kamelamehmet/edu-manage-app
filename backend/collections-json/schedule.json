@@ -1,0 +1,16 @@
+{
+  "name": "schedule",
+  "type": "base",
+  "system": false,
+  "schema": [
+    { "name": "course", "type": "relation", "required": true, "unique": false, "options": { "collectionId": "courses", "cascadeDelete": false, "maxSelect": 1, "displayFields": ["title"] } },
+    { "name": "startTime", "type": "date", "required": true, "unique": false, "options": { "calendar": true } },
+    { "name": "endTime", "type": "date", "required": true, "unique": false, "options": { "calendar": true } },
+    { "name": "location", "type": "text", "required": false, "unique": false, "options": {} }
+  ],
+  "listRule": "@request.auth.id != ''",
+  "viewRule": "@request.auth.id != ''",
+  "createRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.record.role = 'teacher')",
+  "updateRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.record.role = 'teacher')",
+  "options": {}
+}

@@ -1,0 +1,50 @@
+{
+  "name": "grades",
+  "type": "base",
+  "system": false,
+  "schema": [
+    {
+      "name": "student",
+      "type": "relation",
+      "required": true,
+      "unique": false,
+      "options": {
+        "collectionId": "users",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "displayFields": ["fullName"]
+      }
+    },
+    {
+      "name": "course",
+      "type": "relation",
+      "required": true,
+      "unique": false,
+      "options": {
+        "collectionId": "courses",
+        "cascadeDelete": false,
+        "maxSelect": 1,
+        "displayFields": ["title"]
+      }
+    },
+    {
+      "name": "value",
+      "type": "number",
+      "required": true,
+      "unique": false,
+      "options": {}
+    },
+    {
+      "name": "note",
+      "type": "text",
+      "required": false,
+      "unique": false,
+      "options": {}
+    }
+  ],
+  "listRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.record.role = 'teacher' || @request.auth.record.role = 'student')",
+  "viewRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.id = student || @request.auth.record.role = 'teacher')",
+  "createRule": "@request.auth.id != '' && (@request.auth.record.role = 'teacher' || @request.auth.record.role = 'admin')",
+  "updateRule": "@request.auth.id != '' && (@request.auth.record.role = 'teacher' || @request.auth.record.role = 'admin')",
+  "options": {}
+}

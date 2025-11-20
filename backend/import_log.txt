@@ -1,0 +1,16 @@
+Backing up pb_data to pb_data.bak_1763653987
+Importing collection JSON files (skipping users-extras.json).
+Importing courses.json...
+Error: unknown command "collections" for "pocketbase"
+Run 'pocketbase --help' for usage.
+Importing grades.json...
+Error: unknown command "collections" for "pocketbase"
+Run 'pocketbase --help' for usage.
+Importing payments.json...
+Error: unknown command "collections" for "pocketbase"
+Run 'pocketbase --help' for usage.
+Importing schedule.json...
+Error: unknown command "collections" for "pocketbase"
+Run 'pocketbase --help' for usage.
+Skipping users-extras.json (do not auto-import the system users collection).
+Done. Review the server logs and open the Admin UI to confirm the collections.

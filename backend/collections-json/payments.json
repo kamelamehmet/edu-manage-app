@@ -1,0 +1,29 @@
+{
+  "name": "payments",
+  "type": "base",
+  "system": false,
+  "schema": [
+    {
+      "name": "student",
+      "type": "relation",
+      "required": true,
+      "unique": false,
+      "options": { "collectionId": "users", "cascadeDelete": false, "maxSelect": 1, "displayFields": ["fullName"] }
+    },
+    {
+      "name": "course",
+      "type": "relation",
+      "required": true,
+      "unique": false,
+      "options": { "collectionId": "courses", "cascadeDelete": false, "maxSelect": 1, "displayFields": ["title"] }
+    },
+    { "name": "amount", "type": "number", "required": true, "unique": false, "options": {} },
+    { "name": "status", "type": "select", "required": true, "unique": false, "options": { "values": ["pending","paid","failed","refunded"] } },
+    { "name": "date", "type": "date", "required": true, "unique": false, "options": { "calendar": true } }
+  ],
+  "listRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.id = student)",
+  "viewRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.id = student)",
+  "createRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || @request.auth.id = student)",
+  "updateRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin')",
+  "options": {}
+}
