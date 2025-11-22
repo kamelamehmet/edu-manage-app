@@ -4,8 +4,8 @@ export const createCourse = async (payload: { title:string, description?:string,
   return pb.collection('courses').create(payload);
 };
 
-export const getCourses = async (query = '') => {
-  return pb.collection('courses').getFullList(200 /*max*/, { sort: '-created' });
+export const getCourses = async () => {
+  return pb.collection('courses').getFullList({ sort: '-created' });
 };
 
 export const updateCourse = async (id:string, payload:any) => {

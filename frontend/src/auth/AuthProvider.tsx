@@ -12,7 +12,7 @@ type AuthContextType = {
   user: User | null;
   signIn: (email: string, password: string)=>Promise<void>;
   signOut: ()=>void;
-  register: (data:any)=>Promise<void>;
+  register: (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'student')=>Promise<void>;
   ready: boolean;
 };
 
@@ -37,16 +37,20 @@ export const AuthProvider: React.FC<{children:React.ReactNode}> = ({children}) =
   }, []);
 
   const signIn = async (email:string, password:string) => {
-    const authData = await pb.collection('users').authWithPassword(email, password);
+    await pb.collection('users').authWithPassword(email, password);
     setUser(pb.authStore.model as unknown as User);
-    return authData;
   };
 
-  const register = async (payload:any) => {
-    // create user in users collection (if your rules allow public registration)
-    const newUser = await pb.collection('users').create(payload);
-    // optionally auto-login
-    return newUser;
+  const register = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'student') => {
+    const data = {
+      email,
+      password,
+      passwordConfirm: password,
+      fullName,
+      role,
+    };
+    await pb.collection('users').create(data);
+    await signIn(email, password);
   };
 
   const signOut = () => {
