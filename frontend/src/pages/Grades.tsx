@@ -147,14 +147,16 @@ export default function Grades() {
       fetchData();
     } catch (error: any) {
       console.error('Failed to save grade:', error);
-      alert(error.message || 'Failed to save grade');
+      const errorMessage = error?.response?.message || error?.message || 'Failed to save grade';
+      alert('Error: ' + errorMessage);
     }
   };
 
   const getAvailableStudents = () => {
     if (!formData.course) return students;
     const course = courses.find((c) => c.id === formData.course);
-    return students.filter((s) => course?.students?.includes(s.id));
+    const filtered = students.filter((s) => course?.students?.includes(s.id));
+    return filtered;
   };
 
   if (loading) {

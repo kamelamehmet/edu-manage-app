@@ -19,8 +19,12 @@ import {
   MenuItem,
   Chip,
   IconButton,
+  FormControl,
+  InputLabel,
+  Select,
+  OutlinedInput,
 } from '@mui/material';
-import { Add, Edit, Delete } from '@mui/icons-material';
+import { Add, Edit, Delete, PersonAdd } from '@mui/icons-material';
 import { useAuth } from '../auth/AuthProvider';
 import pb from '../api/pb';
 
@@ -47,13 +51,23 @@ interface User {
   fullName: string;
 }
 
+interface Student {
+  id: string;
+  fullName: string;
+  email: string;
+}
+
 export default function Courses() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
   const [teachers, setTeachers] = useState<User[]>([]);
+  const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
+  const [enrollingCourse, setEnrollingCourse] = useState<Course | null>(null);
+  const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [formData, setFormData] = useState({ title: '', description: '', teacher: '' });
 
   const canEdit = user?.role === 'admin' || user?.role === 'teacher';
@@ -62,6 +76,7 @@ export default function Courses() {
     fetchCourses();
     if (canEdit) {
       fetchTeachers();
+      fetchStudents();
     }
   }, [canEdit]);
 
@@ -101,6 +116,45 @@ export default function Courses() {
     }
   };
 
+  const fetchStudents = async () => {
+    try {
+      const records = await pb.collection('users').getFullList({
+        filter: 'role="student"',
+      });
+      setStudents(records as any);
+    } catch (error) {
+      console.error('Failed to fetch students:', error);
+    }
+  };
+
+  const handleOpenEnrollDialog = (course: Course) => {
+    setEnrollingCourse(course);
+    setSelectedStudents(course.students || []);
+    setEnrollDialogOpen(true);
+  };
+
+  const handleCloseEnrollDialog = () => {
+    setEnrollDialogOpen(false);
+    setEnrollingCourse(null);
+    setSelectedStudents([]);
+  };
+
+  const handleSaveEnrollment = async () => {
+    if (!enrollingCourse) return;
+
+    try {
+      await pb.collection('courses').update(enrollingCourse.id, {
+        students: selectedStudents,
+      });
+      handleCloseEnrollDialog();
+      fetchCourses();
+    } catch (error: any) {
+      console.error('Failed to update enrollment:', error);
+      const errorMsg = error?.response?.message || error?.message || 'Failed to update enrollment';
+      alert('Error: ' + errorMsg);
+    }
+  };
+
   const handleOpenDialog = (course?: Course) => {
     if (course) {
       setEditingCourse(course);
@@ -111,7 +165,7 @@ export default function Courses() {
       });
     } else {
       setEditingCourse(null);
-      setFormData({ title: '', description: '', teacher: user?.role === 'teacher' ? user.id : '' });
+      setFormData({ title: '', description: '', teacher: user?.role === 'teacher' ? (user?.id || '') : '' });
     }
     setDialogOpen(true);
   };
@@ -195,6 +249,13 @@ export default function Courses() {
                   </TableCell>
                   {canEdit && (
                     <TableCell align="right">
+                      <IconButton
+                        size="small"
+                        onClick={() => handleOpenEnrollDialog(course)}
+                        title="Manage students"
+                      >
+                        <PersonAdd fontSize="small" />
+                      </IconButton>
                       <IconButton size="small" onClick={() => handleOpenDialog(course)}>
                         <Edit fontSize="small" />
                       </IconButton>
@@ -253,6 +314,41 @@ export default function Courses() {
         <DialogActions>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" disabled={!formData.title || !formData.teacher}>
+            Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog open={enrollDialogOpen} onClose={handleCloseEnrollDialog} maxWidth="sm" fullWidth>
+        <DialogTitle>Manage Students - {enrollingCourse?.title}</DialogTitle>
+        <DialogContent>
+          <FormControl fullWidth margin="normal">
+            <InputLabel>Enrolled Students</InputLabel>
+            <Select
+              multiple
+              value={selectedStudents}
+              onChange={(e) => setSelectedStudents(e.target.value as string[])}
+              input={<OutlinedInput label="Enrolled Students" />}
+              renderValue={(selected) => (
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selected.map((value) => {
+                    const student = students.find((s) => s.id === value);
+                    return <Chip key={value} label={student?.fullName || value} size="small" />;
+                  })}
+                </Box>
+              )}
+            >
+              {students.map((student) => (
+                <MenuItem key={student.id} value={student.id}>
+                  {student.fullName} ({student.email})
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseEnrollDialog}>Cancel</Button>
+          <Button onClick={handleSaveEnrollment} variant="contained">
             Save
           </Button>
         </DialogActions>
