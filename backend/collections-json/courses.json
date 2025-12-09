@@ -42,9 +42,10 @@
       }
     }
   ],
-  "listRule": "@request.auth.id != '' && (students = @request.auth.id || teacher = @request.auth.id || @request.auth.record.role = 'admin')",
-  "viewRule": "@request.auth.id != '' && (students = @request.auth.id || teacher = @request.auth.id || @request.auth.record.role = 'admin')",
-  "createRule": "@request.auth.id != '' && (@request.auth.record.role = 'teacher' || @request.auth.record.role = 'admin')",
-  "updateRule": "@request.auth.id != '' && (@request.auth.record.role = 'admin' || teacher = @request.auth.id)",
+  "listRule": "@request.auth.id != '' && (students.id ?= @request.auth.id || teacher = @request.auth.id || @request.auth.role = 'admin')",
+  "viewRule": "@request.auth.id != '' && (students.id ?= @request.auth.id || teacher = @request.auth.id || @request.auth.role = 'admin')",
+  "createRule": "@request.auth.id != '' && (@request.auth.role = 'teacher' || @request.auth.role = 'admin')",
+  "updateRule": "@request.auth.id != '' && (@request.auth.role = 'admin' || teacher = @request.auth.id)",
+  "deleteRule": "@request.auth.id != '' && @request.auth.role = 'admin'",
   "options": {}
 }

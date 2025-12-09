@@ -65,8 +65,10 @@ export default function Courses() {
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
   const [enrollDialogOpen, setEnrollDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const [enrollingCourse, setEnrollingCourse] = useState<Course | null>(null);
+  const [deletingCourse, setDeletingCourse] = useState<Course | null>(null);
   const [selectedStudents, setSelectedStudents] = useState<string[]>([]);
   const [formData, setFormData] = useState({ title: '', description: '', teacher: '' });
 
@@ -191,15 +193,27 @@ export default function Courses() {
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('Are you sure you want to delete this course?')) return;
+  const handleOpenDeleteDialog = (course: Course) => {
+    setDeletingCourse(course);
+    setDeleteDialogOpen(true);
+  };
+
+  const handleCloseDeleteDialog = () => {
+    setDeleteDialogOpen(false);
+    setDeletingCourse(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!deletingCourse) return;
 
     try {
-      await pb.collection('courses').delete(id);
+      await pb.collection('courses').delete(deletingCourse.id);
+      handleCloseDeleteDialog();
       fetchCourses();
     } catch (error: any) {
       console.error('Failed to delete course:', error);
-      alert(error.message || 'Failed to delete course');
+      const errorMsg = error?.response?.message || error?.message || 'Failed to delete course';
+      alert('Error: ' + errorMsg);
     }
   };
 
@@ -260,7 +274,7 @@ export default function Courses() {
                         <Edit fontSize="small" />
                       </IconButton>
                       {user?.role === 'admin' && (
-                        <IconButton size="small" onClick={() => handleDelete(course.id)} color="error">
+                        <IconButton size="small" onClick={() => handleOpenDeleteDialog(course)} color="error">
                           <Delete fontSize="small" />
                         </IconButton>
                       )}
@@ -350,6 +364,29 @@ export default function Courses() {
           <Button onClick={handleCloseEnrollDialog}>Cancel</Button>
           <Button onClick={handleSaveEnrollment} variant="contained">
             Save
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={handleCloseDeleteDialog}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Delete Course</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete the course <strong>"{deletingCourse?.title}"</strong>?
+          </Typography>
+          <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+            This action cannot be undone. All related schedules and grades will remain but will no longer be associated with this course.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleCloseDeleteDialog}>Cancel</Button>
+          <Button onClick={handleConfirmDelete} color="error" variant="contained">
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
