@@ -12,7 +12,7 @@ import {
   CircularProgress,
 } from '@mui/material';
 import { Calendar, dayjsLocalizer } from 'react-big-calendar';
-import type { Event } from 'react-big-calendar';
+import type { Event, View } from 'react-big-calendar';
 import dayjs from 'dayjs';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import { useAuth } from '../auth/AuthProvider';
@@ -49,6 +49,8 @@ export default function Schedule() {
   const [courses, setCourses] = useState<Course[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [currentView, setCurrentView] = useState<View>('week');
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [formData, setFormData] = useState({
     course: '',
     startTime: '',
@@ -168,7 +170,40 @@ export default function Schedule() {
         <Typography variant="h4">Schedule</Typography>
       </Box>
 
-      <Box sx={{ height: 600, bgcolor: 'background.paper', p: 2, borderRadius: 1 }}>
+      <Box
+        sx={{
+          height: 600,
+          bgcolor: 'background.paper',
+          p: 2,
+          borderRadius: 1,
+          '& .rbc-toolbar': {
+            flexWrap: 'wrap',
+            gap: 1,
+            mb: 2,
+          },
+          '& .rbc-toolbar button': {
+            color: 'primary.main',
+            border: '1px solid',
+            borderColor: 'divider',
+            borderRadius: 1,
+            padding: '6px 12px',
+            transition: 'all 0.2s',
+            '&:hover': {
+              backgroundColor: 'primary.main',
+              color: 'white',
+              borderColor: 'primary.main',
+            },
+            '&.rbc-active': {
+              backgroundColor: 'primary.main',
+              color: 'white',
+              borderColor: 'primary.main',
+            },
+          },
+          '& .rbc-event': {
+            backgroundColor: 'primary.main',
+          },
+        }}
+      >
         <Calendar
           localizer={localizer}
           events={events}
@@ -178,7 +213,10 @@ export default function Schedule() {
           onSelectSlot={handleSelectSlot}
           style={{ height: '100%' }}
           views={['month', 'week', 'day']}
-          defaultView="week"
+          view={currentView}
+          date={currentDate}
+          onView={(view) => setCurrentView(view)}
+          onNavigate={(date) => setCurrentDate(date)}
         />
       </Box>
 
