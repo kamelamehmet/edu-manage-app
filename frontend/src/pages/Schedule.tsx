@@ -124,7 +124,13 @@ export default function Schedule() {
 
   const handleSave = async () => {
     try {
-      await pb.collection('schedule').create(formData);
+      // Convert datetime-local format to ISO 8601 format
+      const dataToSave = {
+        ...formData,
+        startTime: dayjs(formData.startTime).toISOString(),
+        endTime: dayjs(formData.endTime).toISOString(),
+      };
+      await pb.collection('schedule').create(dataToSave);
       handleCloseDialog();
       fetchData();
     } catch (error: any) {
@@ -133,13 +139,20 @@ export default function Schedule() {
     }
   };
 
-  const events: CalendarEvent[] = schedules.map((schedule) => ({
-    id: schedule.id,
-    title: schedule.expand?.course?.title || 'Course',
-    start: new Date(schedule.startTime),
-    end: new Date(schedule.endTime),
-    location: schedule.location,
-  }));
+  const events: CalendarEvent[] = schedules
+    .filter((schedule) => {
+      // Filter out schedules with invalid or empty date/time values
+      return schedule.startTime && schedule.endTime &&
+             !isNaN(new Date(schedule.startTime).getTime()) &&
+             !isNaN(new Date(schedule.endTime).getTime());
+    })
+    .map((schedule) => ({
+      id: schedule.id,
+      title: schedule.expand?.course?.title || 'Course',
+      start: new Date(schedule.startTime),
+      end: new Date(schedule.endTime),
+      location: schedule.location,
+    }));
 
   if (loading) {
     return (

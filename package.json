@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.0",
   "scripts": {
-    "start:backend": "cd backend && ./pocketbase serve",
+    "start:backend": "cd backend && ./pocketbase serve --origins=\"http://localhost:5173\"",
     "start:frontend": "cd frontend && npm run dev",
     "start": "concurrently \"npm run start:backend\" \"npm run start:frontend\""
   },

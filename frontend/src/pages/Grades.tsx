@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import {
   Box,
   Button,
@@ -43,6 +43,12 @@ interface Course {
   id: string;
   title: string;
   students: string[];
+  expand?: {
+    students?: Array<{
+      id: string;
+      fullName: string;
+    }>;
+  };
 }
 
 interface Student {
@@ -62,11 +68,7 @@ export default function Grades() {
 
   const canEdit = user?.role === 'admin' || user?.role === 'teacher';
 
-  useEffect(() => {
-    fetchData();
-  }, [user?.id, user?.role]);
-
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setLoading(true);
       let gradeFilter = '';
@@ -95,6 +97,7 @@ export default function Grades() {
         const [courseRecords, studentRecords] = await Promise.all([
           pb.collection('courses').getFullList({
             filter: user?.role === 'teacher' ? `teacher="${user.id}"` : '',
+            expand: 'students',
           }),
           pb.collection('users').getFullList({ filter: 'role="student"' }),
         ]);
@@ -106,7 +109,27 @@ export default function Grades() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id, user?.role, canEdit]);
+
+  useEffect(() => {
+    fetchData();
+
+    // Subscribe to real-time updates for grades collection
+    const unsubscribe = pb.collection('grades').subscribe('*', async (e) => {
+      console.log('Real-time update:', e.action, e.record);
+
+      // Refresh data when any grade is created, updated, or deleted
+      if (e.action === 'create' || e.action === 'update' || e.action === 'delete') {
+        // Fetch updated data to ensure we have the latest with expansions
+        await fetchData();
+      }
+    });
+
+    // Cleanup subscription on unmount
+    return () => {
+      unsubscribe.then((unsub) => unsub());
+    };
+  }, [fetchData]);
 
   const handleOpenDialog = (grade?: Grade) => {
     if (grade) {
