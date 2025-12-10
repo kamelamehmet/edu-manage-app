@@ -325,7 +325,11 @@ export default function Courses() {
             </TextField>
           )}
         </DialogContent>
-        <DialogActions>
+        <DialogActions sx={{
+          "&.MuiDialogActions-root": {
+            backgroundColor: "#f5f5f5"
+          }
+        }}>
           <Button onClick={handleCloseDialog}>Cancel</Button>
           <Button onClick={handleSave} variant="contained" disabled={!formData.title || !formData.teacher}>
             Save
