@@ -43,7 +43,9 @@ export const AuthProvider: React.FC<{children:React.ReactNode}> = ({children}) =
 
   const register = async (email: string, password: string, fullName: string, role: 'admin' | 'teacher' | 'student') => {
     const data = {
+      username: email, // PocketBase requires username for auth collections
       email,
+      emailVisibility: true,
       password,
       passwordConfirm: password,
       fullName,
